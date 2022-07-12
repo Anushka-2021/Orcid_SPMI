@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template
-import requests, sqlite3, sqlalchemy, json
+import requests, sqlite3, datetime, sqlalchemy, json
 #from flask_restful import Api, Resourse, reqparse
 
 app = Flask(__name__)
@@ -25,6 +25,8 @@ def index():
         #     cursor.execute("INSERT OR REPLACE INTO orcid5(name, surname, orcid_id) VALUES (?, ?, ?)", (name_try, surname_try, orcid_id))
         #     conn.commit()
 
+
+
         print("orcid6:")
         f = 1
         for value in cursor.execute("SELECT * FROM orcid6"):
@@ -45,9 +47,19 @@ def about_person(orcid_id):
     return req.json['name']['given-names']['value']#, req.json['name']['family-names']['value']
 
 if __name__ == "__main__":
+    app.run(debug=True)
+    now = datetime.datetime.now()
+    time = now.strftime("%H:%M:%S")
+    # print("dsfksdf", datetime.datetime.now())
+    # print("dsfkf", time)
+    # print("ds", datetime.datetime.now().strftime("%H"))
+    current_hour = datetime.datetime.now().strftime("%H")
+    current_min = datetime.datetime.now().strftime("%M")
+    current_sec = datetime.datetime.now().strftime("%S")
+    if current_hour=='03' and current_min=='0' and current_sec=='0':
+        print("DATABASE WILL BE UPDATED")#dвот в этой штуке должно быть всё что обновляет ДБ (наверное)
 
     count = 0
-
     cursor.execute("""CREATE TABLE IF NOT EXISTS orcid6
                 (name text, surname text, orcid_id text UNIQUE, k_words text)
                 """)
@@ -68,9 +80,9 @@ if __name__ == "__main__":
             kwords = []
             kwords_str = ''
             keywords_req = person_req.json()['keywords']['keyword']
-            print("!?!")
-            print(len(keywords_req))
-            print("!?!")
+            # print("!?!")
+            # print(len(keywords_req))
+            # print("!?!")
           #  kwords_str = person_req.json()['keywords']['keyword']['content']
             for i in keywords_req:
                 # if i == len(keywords_req):
@@ -83,7 +95,6 @@ if __name__ == "__main__":
     print("!!!")
     print(count)
     print("!!!")
-    app.run(debug=True)
 
     # for i in mining_search_res:
     #      print(i['orcid-identifiers']['path'])
