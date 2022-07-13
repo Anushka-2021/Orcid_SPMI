@@ -1,100 +1,108 @@
-from flask import Flask, request, jsonify, render_template
-import requests, sqlite3, datetime, sqlalchemy, json
+from flask import Flask, request, jsonify, render_template, session
+import requests, sqlite3, datetime, eel, sqlalchemy, json
+from jinja2 import Template
 #from flask_restful import Api, Resourse, reqparse
 
 app = Flask(__name__)
+eel.init("Praktika_2022")
 
 host = 'https://pub.orcid.org/v3.0/'
 conn = sqlite3.connect("orcid1.db", check_same_thread=False)
 cursor = conn.cursor()
 
+count = 0
+global temp
+resp = []#?
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         orcid_id = request.form.get('id')
-        req = requests.get('https://pub.orcid.org/v3.0/' + orcid_id + '/person', headers = {'Accept': 'application/vnd.orcid+json'})
-        name_try = req.json()['name']['given-names']['value']
-        surname_try = req.json()['name']['family-name']['value']
-        keywords_try = req.json()['keywords']['keyword']
-        cursor.execute("SELECT * FROM orcid6 WHERE orcid_id=?", (orcid_id,))
-        row = cursor.fetchone()
-        cursor.execute("SELECT * FROM orcid6")
-        rows = cursor.fetchall()
-
-        # if cursor.fetchone() is None: #orcid3.query(orcid3).filter_by(orcid_id=orcid_id).first():
-        #     cursor.execute("INSERT OR REPLACE INTO orcid5(name, surname, orcid_id) VALUES (?, ?, ?)", (name_try, surname_try, orcid_id))
-        #     conn.commit()
-
-
-
-        print("orcid6:")
+        #cursor.execute("SELECT * FROM orcid7 WHERE orcid_id=?", (orcid_id,))
+        cursor.execute("SELECT * FROM orcid7")
+        print(cursor.execute("SELECT * FROM orcid7"))
+        c = 0
+        for i in range(19):
+            print(c)
+            c = c + 1
+            resp.append(cursor.fetchmany(size=25))
+        rows = resp
+        print(resp)
+        print("orcid7:")
         f = 1
-        for value in cursor.execute("SELECT * FROM orcid6"):
-            print(f, value[0], value[1], value[2], value[3])
+        for value in cursor.execute("SELECT * FROM orcid7"):
+            print(f, value[0], value[1], value[2], value[3], value[4])
             f = f + 1
         print()
-
+        print(rows)
         return render_template("3.html", table=rows)
-        #return render_template("2.html", table=row)
     else:
         return render_template("1.html")
-#   req = requests.get(host + '/0000-0002-3707-6813/person', headers = {'Accept': 'application/vnd.orcid+json'})
-  #  return req.json['name']['given-names']['value']#, req.json['name']['family-names']['value']
 
-@app.route('/<orcid_id>')
-def about_person(orcid_id):
-    req = requests.get(host + '/' + orcid_id + '/person', headers = {'Accept': 'application/vnd.orcid+json'})
-    return req.json['name']['given-names']['value']#, req.json['name']['family-names']['value']
+@app.route('/table', methods=['GET', 'POST'])
+def table():
+    cursor.execute("SELECT * FROM orcid7")
+    for i in range(30):
+        resp.append(cursor.fetchmany(size=25))
+    return render_template("5.html", table=resp)
+
+@app.route('/page<int:page_number>', methods=['GET', 'POST'])#общее для страниц списка
+def page(page_number):
+    resp = []
+    cursor.execute("SELECT * FROM orcid7")
+    for i in range(page_number-1):
+        cursor.fetchmany(size=25)
+    for i in range(1):
+        resp.append(cursor.fetchmany(size=25))
+    return render_template("5.html", table=resp)
 
 if __name__ == "__main__":
     app.run(debug=True)
+
     now = datetime.datetime.now()
     time = now.strftime("%H:%M:%S")
-    # print("dsfksdf", datetime.datetime.now())
-    # print("dsfkf", time)
-    # print("ds", datetime.datetime.now().strftime("%H"))
     current_hour = datetime.datetime.now().strftime("%H")
     current_min = datetime.datetime.now().strftime("%M")
     current_sec = datetime.datetime.now().strftime("%S")
     if current_hour=='03' and current_min=='0' and current_sec=='0':
-        print("DATABASE WILL BE UPDATED")#dвот в этой штуке должно быть всё что обновляет ДБ (наверное)
+        print("DATABASE WILL BE UPDATED")#вот в этой штуке должно быть всё что обновляет ДБ (наверное)
 
-    count = 0
-    cursor.execute("""CREATE TABLE IF NOT EXISTS orcid6
-                (name text, surname text, orcid_id text UNIQUE, k_words text)
+    cursor.execute("""CREATE TABLE IF NOT EXISTS orcid7
+                (name text, surname text, orcid_id text UNIQUE, k_words text, works text)
                 """)
     conn.commit()
 
-    mining_search = requests.get(host + 'search/?q=affiliation-org-name:"Saint+Petersburg+Mining+University"', headers = {'Accept': 'application/vnd.orcid+json'})
-    mining_search_res = mining_search.json()['result']
+    mining_search_res = requests.get(host + 'search/?q=affiliation-org-name:"Saint+Petersburg+Mining+University"', headers = {'Accept': 'application/vnd.orcid+json'}).json()['result']
 
-    for i in mining_search_res:
+    for i in mining_search_res:#Внос данных в таблицу БД
         orcid_id = i['orcid-identifier']['path']
         person_req = requests.get(host + orcid_id + '/person', headers = {'Accept': 'application/vnd.orcid+json'})
+        works_req = requests.get(host + orcid_id + '/works', headers = {'Accept': 'application/vnd.orcid+json'}).json()['group']
         if person_req.json()['name'] is None or person_req.json()['name']['given-names'] is None or person_req.json()['name']['family-name'] is None:# person_req.json():
+            name = 'None'
+            surname = 'None'
             print(count, orcid_id, "None")
         else:
             count = count + 1
             name = person_req.json()['name']['given-names']['value']
             surname = person_req.json()['name']['family-name']['value']
-            kwords = []
-            kwords_str = ''
-            keywords_req = person_req.json()['keywords']['keyword']
-            # print("!?!")
-            # print(len(keywords_req))
-            # print("!?!")
-          #  kwords_str = person_req.json()['keywords']['keyword']['content']
-            for i in keywords_req:
-                # if i == len(keywords_req):
-                #     kwords_str = kwords_str + i['content']
-                # else:
-                    kwords_str = kwords_str + i['content'] + '; '
-            if cursor.fetchone() is None:
-                cursor.execute("INSERT OR REPLACE INTO orcid6(name, surname, orcid_id, k_words) VALUES (?, ?, ?, ?)", (name, surname, orcid_id, kwords_str))
-                conn.commit()
-    print("!!!")
-    print(count)
-    print("!!!")
 
-    # for i in mining_search_res:
-    #      print(i['orcid-identifiers']['path'])
+        kwords_str = ''
+        keywords_req = person_req.json()['keywords']['keyword']
+        for i in keywords_req:
+            kwords_str = kwords_str + i['content'] + '; '
+
+        #этим кодом заносятся doi работ человека в строку
+        works_str = ''
+        for i in works_req:
+            a = i['external-ids']['external-id']
+            for j in a:
+                if j['external-id-type'] == "doi":
+                    works_str = works_str + j['external-id-value'] + '; '
+
+        #а этим
+
+        print(name, surname, orcid_id, kwords_str, works_str)
+        if cursor.fetchone() is None:
+            cursor.execute("INSERT OR REPLACE INTO orcid7(name, surname, orcid_id, k_words, works) VALUES (?, ?, ?, ?, ?)", (name, surname, orcid_id, kwords_str, works_str))
+            conn.commit()
