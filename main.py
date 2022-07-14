@@ -85,14 +85,14 @@ def page(page_number):
         cursor.fetchmany(size=25)
     for i in range(1):
         resp.append(cursor.fetchmany(size=25))
-    return render_template("5.html", table=resp)
+    return render_template("6.html", table=resp)
 
 @app.route('/page<int:page_number>/<swap>', methods=['GET', 'POST'])#общее для страниц списка
 def list(page_number, swap):
-    print(swap)
     if swap == 'next':
-        print(swap)
         webbrowser.open('http://127.0.0.1:5000/page'+str(page_number+1))
+    if swap == 'prev':
+        webbrowser.open('http://127.0.0.1:5000/page'+str(page_number-1))
         #urllib.request.urlopen('http://127.0.0.1:5000/page<int:page_number>')
         #urllib.request.urlopen
         #requests.get(host + orcid_id + '/person', headers = {'Accept': 'application/vnd.orcid+json'})
