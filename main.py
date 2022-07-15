@@ -17,25 +17,26 @@ resp = []#?
 def index():
     if request.method == 'POST':
         orcid_id = request.form.get('id')
-        cursor.execute("SELECT * FROM orcid8")
-        print(cursor.execute("SELECT * FROM orcid8"))
-        c = 0
-        for i in range(19):
-            print(c)
-            c = c + 1
-            resp.append(cursor.fetchmany(size=25))
-        rows = resp
-        print(resp)
-        print("orcid8:")
-        f = 1
-        for value in cursor.execute("SELECT * FROM orcid8"):
-            print(f, value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9])
-            f = f + 1
-        print()
-        print(rows)
-        return render_template("3.html", table=rows)
+        cursor.execute("SELECT * FROM orcid8 WHERE orcid_id=?", (orcid_id,))
+        row = cursor.fetchone()
+    #     print(cursor.execute("SELECT * FROM orcid8"))
+    #     c = 0
+    #     for i in range(19):
+    #         print(c)
+    #         c = c + 1
+    #         resp.append(cursor.fetchmany(size=25))
+    #     rows = resp
+    #     print(resp)
+    #     print("orcid8:")
+    #     f = 1
+    #     for value in cursor.execute("SELECT * FROM orcid8"):
+    #         print(f, value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9])
+    #         f = f + 1
+    #     print()
+    #     print(rows)
+        return render_template("7.html", table=row)
     else:
-        return render_template("1.html")
+        return render_template("8.html")
 
 # @app.route('/big_base', methods=['GET'])
 # def bb():
@@ -68,14 +69,12 @@ def index():
 #     return render_template("5.html", table=mass)
 
 
-
-
 @app.route('/table', methods=['GET', 'POST'])
 def table():
     cursor.execute("SELECT * FROM orcid8")
     for i in range(30):
         resp.append(cursor.fetchmany(size=25))
-    return render_template("5.html", table=resp)
+    return render_template("6.html", table=resp)
 
 @app.route('/page<int:page_number>', methods=['GET', 'POST'])#общее для страниц списка
 def page(page_number):
@@ -93,10 +92,6 @@ def list(page_number, swap):
         webbrowser.open('http://127.0.0.1:5000/page'+str(page_number+1))
     if swap == 'prev':
         webbrowser.open('http://127.0.0.1:5000/page'+str(page_number-1))
-        #urllib.request.urlopen('http://127.0.0.1:5000/page<int:page_number>')
-        #urllib.request.urlopen
-        #requests.get(host + orcid_id + '/person', headers = {'Accept': 'application/vnd.orcid+json'})
-
 
 if __name__ == "__main__":
     app.run(debug=True)
@@ -109,11 +104,6 @@ if __name__ == "__main__":
     current_sec = datetime.datetime.now().strftime("%S")
     if current_hour=='03' and current_min=='0' and current_sec=='0':
         print("DATABASE WILL BE UPDATED")#вот в этой штуке должно быть всё что обновляет ДБ (наверное)
-
-    # cursor.execute("""CREATE TABLE IF NOT EXISTS orcid7
-    #             (name text, surname text, orcid_id text UNIQUE, k_words text, works text)
-    #             """)
-    # conn.commit()
 
     cursor.execute("""CREATE TABLE IF NOT EXISTS orcid8
                 (doi, wosid, summary_str, orcid_id, name, surname, other_names, country, external_ids, k_words)
@@ -182,7 +172,6 @@ if __name__ == "__main__":
                         if k['external-id-type'] == 'wosuid' and k['external-id-value'] != ('none' or None):
                             wos = k['external-id-value']
 
-
                 put_code = j['put-code']
                 source_name = j['source']['source-name']['value']
                 work_title = j['title']['title']['value']
@@ -211,7 +200,11 @@ if __name__ == "__main__":
                 cursor.execute("INSERT OR REPLACE INTO orcid8(doi, wosid, summary_str, orcid_id, name, surname, other_names, country, external_ids, k_words) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (doi, wos, summary_str, orcid_id, name, surname, other_names, country, external_ids, kwords_str))
                 conn.commit()
 
-
+    #Всё ниже для маленькой таблицы
+    # cursor.execute("""CREATE TABLE IF NOT EXISTS orcid7
+    #             (name text, surname text, orcid_id text UNIQUE, k_words text, works text)
+    #             """)
+    # conn.commit()
 
     # for i in mining_search_res:#Внос данных в little таблицу БД
     #     orcid_id = i['orcid-identifier']['path']
