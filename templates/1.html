@@ -14,18 +14,55 @@
             <input type="text" name="id">
             <input type="submit" value="send">
         </form>
+
+        <form action="/" name="f1" method="post">
+            <p>Посмотреть всю таблицу</p>
+            <input type="submit" value="send">
+        </form>
         <p>Function test</p>
         <p>table_list(5)</p>
         <p>table_list(5)</p>
-        <p><var>param</var>=5</p>
-        <button value="buttons" onclick="table_list(param)">кнопка</button>
+        <p><var>para</var>=5</p>
 
+
+
+        <input type="text" id="if" value="checkpoint">
+        <button type="button" id="ig">кнопка</button>
+
+        <script>
+            //document.querySelector("button").onclick = btn_click;
+            document.getElementById("ig").onclick = btn_click;
+            function btn_click(){
+                alert(document.getElementById("if").value);
+            }
+
+        </script>
+
+        <p>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</p>
+        <input type="text" id="qq" value="erwr">
+        <button type="button" class="butt" id="ie" onclick="runn(3);" value="7" >кнопка2</button>
+        <script>
+            /*if(document.getElementById("ie").onclick){
+                runn(5);
+            }*/
+
+            function runn(par){
+                //let results = await eel.pages(7);
+                //showResults(results);
+                alert(eel.pages(par);
+                //alert(document.getElementById("qq").value);
+                //console.log(par);
+            }
+            function ru(){
+                alert("It doesn't work");
+            }
+        </script>
+        <p>
+            {{ y }}
+            {{ para }}
+        </p>
     </div>
-    <div class="h2">
-        {% for key in data %}
-            <p>HELLO</p>
-        {% endfor %}
-    </div>
+    <script type="text/javascript" src="/js/file.js"></script>
+    <script type="text/javascript" src="/eel.js"></script>
 </body>
-<script src="js/file.js"></script>
 </html>
