@@ -15,16 +15,30 @@
             <input type="submit" value="send">
         </form>
         <form action="/" name="f2" method="post">
-            <p>Enter orcid_id: </p>
+            <p>Enter doi: </p>
             <input type="text" name="doi">
             <input type="submit" value="send">
         </form>
+        <form action="/" name="f2" method="post">
+            <p>Enter wos: </p>
+            <input type="text" name="wos">
+            <input type="submit" value="send">
+        </form>
+        <form action="/" name="f2" method="post">
+            <p>Enter eid: </p>
+            <input type="text" name="eid">
+            <input type="submit" value="send">
+        </form>
     </div>
-    <div>
+    <div class="buttons">
         <button onclick="window.location.href = window.location.origin + '/page1'">small table</button>
         <button onclick="window.location.href = window.location.origin + '/table'">big table</button>
+        <style>
+            .buttons{
+                margin: 10px;
+                padding: 5px;
+            }
+        </style>
     </div>
-    <script type="text/javascript" src="/js/file.js"></script>
-    <script type="text/javascript" src="/eel.js"></script>
 </body>
 </html>

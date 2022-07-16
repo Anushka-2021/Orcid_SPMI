@@ -24,6 +24,14 @@ def index():
             cursor.execute("SELECT * FROM orcid10 WHERE doi=?", (doi,))
             row = cursor.fetchall()
             return render_template("7.html", table=row)
+        if wos != None:
+            cursor.execute("SELECT * FROM orcid10 WHERE wos=?", (wos,))
+            row = cursor.fetchall()
+            return render_template("7.html", table=row)
+        if eid != None:
+            cursor.execute("SELECT * FROM orcid10 WHERE eid=?", (eid,))
+            row = cursor.fetchall()
+            return render_template("7.html", table=row)
     else:
         return render_template("8.html")
 
@@ -45,14 +53,8 @@ def page(page_number):
         resp.append(cursor.fetchmany(size=25))
     return render_template("6.html", table=resp)
 
-# @app.route('/page<int:page_number>/<swap>', methods=['GET', 'POST'])#общее для страниц списка
-# def list(page_number, swap):
-#     if swap == 'next':
-#         webbrowser.open('http://127.0.0.1:5000/page'+str(page_number+1))
-#     if swap == 'prev':
-#         webbrowser.open('http://127.0.0.1:5000/page'+str(page_number-1))
-
 if __name__ == "__main__":
+    app.run(debug=True)
 
     now = datetime.datetime.now()#time
     time = now.strftime("%H:%M:%S")
@@ -61,11 +63,6 @@ if __name__ == "__main__":
     current_sec = datetime.datetime.now().strftime("%S")
     if current_hour=='03' and current_min=='0' and current_sec=='0':
         print("DATABASE WILL BE UPDATED")#вот в этой штуке должно быть всё что обновляет ДБ (наверное)
-
-    # cursor.execute("""CREATE TABLE IF NOT EXISTS orcid8
-    #             (doi, wosid, summary_str, orcid_id, name, surname, other_names, country, external_ids, k_words)
-    #             """)
-    # conn.commit()
 
     # cursor.execute("""CREATE TABLE IF NOT EXISTS orcid9
     #             (doi UNIQUE, wosid, summary_str, orcid_id, name, surname, other_names, country, external_ids, k_words)
@@ -112,7 +109,6 @@ if __name__ == "__main__":
         for i in person_req['external-identifiers']['external-identifier']:
             external_ids += i['external-id-type'] + ': ' + i['external-id-value'] + '; '
 
-
         #этим кодом заносятся вытаскивается всё про работу
         for i in works_req:
             last_m_d = i['last-modified-date']['value']#?
@@ -128,8 +124,6 @@ if __name__ == "__main__":
                     doi = j['external-id-value']
                 if j['external-id-type'] == 'eid':
                     eid = j['external-id-value']
-
-
 
             w_summary = i['work-summary']
             summary_str = ''
@@ -148,7 +142,6 @@ if __name__ == "__main__":
                                 eid = k['external-id-value']
                 print()
                 print(doi, '    ', wos, '   ', eid)
-
 
                 # if doi == None and j['external-ids']['external-id'] != None:
                 #     for k in j['external-ids']['external-id']:
@@ -188,7 +181,7 @@ if __name__ == "__main__":
                 cursor.execute("INSERT OR REPLACE INTO orcid10(doi, wosid, eid, summary_str, orcid_id, name, surname, other_names, country, external_ids, k_words) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (doi, wos, eid, summary_str, orcid_id, name, surname, other_names, country, external_ids, kwords_str))
                 conn.commit()
 
-    app.run(debug=True)
+
     #Всё ниже для маленькой таблицы
     # cursor.execute("""CREATE TABLE IF NOT EXISTS orcid7
     #             (name text, surname text, orcid_id text UNIQUE, k_words text, works text)

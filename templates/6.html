@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Praktika_2022</title>
 </head>
 <body>
     <div>
@@ -35,13 +35,45 @@
             }
         </script>
     </div>
-
-    <div>
+    <div class="table">
         {% for row in table %}
         <table>
-            <col width="120">
-            <col width="120">
-            <col width="170">
+            <col style="doi_col">
+            <col style="wos_col">
+            <col stele="eid_col">
+            <th>
+                doi
+            </th>
+            <th>
+                wos
+            </th>
+            <th>
+                eid
+            </th>
+            <th>
+                summary_str
+            </th>
+            <th>
+                orcid_id
+            </th>
+            <th>
+                name
+            </th>
+            <th>
+                surname
+            </th>
+            <th>
+                other_names
+            </th>
+            <th>
+                country
+            </th>
+            <th>
+                external_ids
+            </th>
+            <th>
+                kwords_str
+            </th>
             {% for field in row %}
             <tr>{% for a in field %}
                 <td>{{ a }}</td>
@@ -50,6 +82,16 @@
         </table>
         {% endfor %}
     </div>
-
+    <style>
+        .doi_col{
+            width: 150px;
+        }
+        .wos_col{
+            width: 150px;
+        }
+        .eid_col{
+            width: 150px;
+        }
+    </style>
 </body>
 </html>
