@@ -15,11 +15,14 @@ resp = []#I really don't remember if we're need in it...
 def index():
     if request.method == 'POST':
         orcid_id = request.form.get('orcid_id')
-        doi = request.form.get('doi')
+        row = ''
         if orcid_id != None:
             cursor.execute("SELECT * FROM orcid11 WHERE orcid_id=?", (orcid_id,))
             row = cursor.fetchall()
-            return render_template("9.html", table=row)
+            for i in row:
+                if i[0] == orcid_id:
+                    return render_template("9.html", table=row)
+            return render_template("8.html", text = "We can't find this record")
     else:
         return render_template("8.html")
 
